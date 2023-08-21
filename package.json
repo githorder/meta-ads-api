@@ -1,0 +1,16 @@
+{
+  "name": "fb-ads",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "facebook-nodejs-business-sdk": "^17.0.3",
+    "googleapis": "^126.0.0"
+  }
+}
