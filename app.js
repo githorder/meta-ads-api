@@ -12,7 +12,7 @@ const AdSet = bizSdk.AdSet;
 const AdReportRun = bizSdk.AdReportRun;
 
 const accessToken =
-  "EAAHXvke4wn4BOZBuOGBSYeJN1vANaMDVmkkVg0riODVN6XkeHt6XPpFRT1opZBy88DnRz43zo454icHweD6hYxd1zgIgW5qHf6OFntKBnN1lELgmEZA0OIHZBV36puiMih0d8DgvgnZAqDooCyulOQYMLRHESx9PRdZAbhmFZB3z1xImt1HMZB6qySYtQuSpVzUd5mNlAFIzxWxg8kMIrU2mryXX9ZBIZD";
+  "EAAHXvke4wn4BOzgQYmf5DZCJUWighTHE7ZAaWwUu8LT4HxMOQNXpyZAEsnQPl7HJwjFMYqYSB477ydGYMhae655CxvkShTjLN61UjQfBrLiaGHtbjy6uvgZC5BjDHxSDaOxLetyQXg0N325B1M4K0KpiQLBZAVpeJaG5svFZAWIgsdXxTOHjPegRbmczVUsc4HiiZBB611iwZCIZAAeE0EIHqDNZCI82wZD";
 const accountId = "act_473357418251469";
 
 bizSdk.FacebookAdsApi.init(accessToken);
@@ -21,7 +21,6 @@ const account = new AdAccount(accountId);
 
 const params = {
   breakdowns: "age, gender",
-  // date_preset: "last_month",
   date_preset: "last_week_mon_sun",
   time_increment: 1,
   action_attribution_windows: ["1d_click", "7d_click", "1d_view"],
@@ -43,12 +42,21 @@ const fields = [
 ];
 
 (async function () {
-  let insights = await account.getInsights(fields, params);
+  let async_job = await account.getInsightsAsync(fields, params);
+
+  async_job = await async_job.get();
+
+  while (async_job[AdReportRun.Fields.async_status] !== "Job Completed") {
+    await sleep(100);
+    async_job = await async_job.get();
+  }
+
+  let insights = await async_job.getInsights([], {});
 
   let notEmpty = true;
 
   while (notEmpty) {
-    for (const insight of insights) {
+    for (let insight of insights) {
       const action = insight._data?.actions?.filter(
         ({ action_type }) => action_type === "landing_page_view"
       );
@@ -56,6 +64,7 @@ const fields = [
         ({ action_type }) => action_type === "landing_page_view"
       );
 
+      await sleep(1000);
       await createRecord([
         insight._data.campaign_name,
         insight._data.adset_name,
@@ -89,6 +98,56 @@ const fields = [
     }
   }
 })();
+
+// sync way of pulling data
+
+// (async function () {
+//   let insights = await account.getInsights(fields, params);
+
+//   let notEmpty = true;
+
+//   while (notEmpty) {
+//     for (const insight of insights) {
+//       const action = insight._data?.actions?.filter(
+//         ({ action_type }) => action_type === "landing_page_view"
+//       );
+//       const costAction = insight._data?.cost_per_action_type?.filter(
+//         ({ action_type }) => action_type === "landing_page_view"
+//       );
+
+//       await createRecord([
+//         insight._data.campaign_name,
+//         insight._data.adset_name,
+//         insight._data.date_start,
+//         insight._data.age ?? "unknown",
+//         insight._data.gender ?? "unknown",
+//         insight._data.spend ?? "-",
+//         "Просмотры целевой страницы",
+//         (action && action[0]?.value) ?? "-",
+//         (costAction && costAction[0]?.value) ?? "-",
+//         insight._data.inline_link_clicks ?? "-",
+//         insight._data.cost_per_inline_link_click ?? "-",
+//         (insight._data.website_ctr && insight._data.website_ctr[0].value) ??
+//           "-",
+//         insight._data.impressions ?? "-",
+//         insight._data.frequency ?? "-",
+//         (action && action[0]?.value) ?? "-",
+//         (costAction && costAction[0]?.value) ?? "-",
+//         insight._data.date_start,
+//         insight._data.date_start,
+//       ]);
+//     }
+
+//     notEmpty = insights.hasNext();
+
+//     if (notEmpty) {
+//       await sleep(1000);
+//       insights = await insights.next();
+//     } else {
+//       break;
+//     }
+//   }
+// })();
 
 // version without sorting
 
