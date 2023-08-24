@@ -12,7 +12,7 @@ const AdSet = bizSdk.AdSet;
 const AdReportRun = bizSdk.AdReportRun;
 
 const accessToken =
-  "EAAHXvke4wn4BOzgQYmf5DZCJUWighTHE7ZAaWwUu8LT4HxMOQNXpyZAEsnQPl7HJwjFMYqYSB477ydGYMhae655CxvkShTjLN61UjQfBrLiaGHtbjy6uvgZC5BjDHxSDaOxLetyQXg0N325B1M4K0KpiQLBZAVpeJaG5svFZAWIgsdXxTOHjPegRbmczVUsc4HiiZBB611iwZCIZAAeE0EIHqDNZCI82wZD";
+  "EAAHXvke4wn4BO0ptJ8ZCQRpzZBmUwtcEZCYdTRZBQ95P6ZASwmXuAFhNons35jc72zgahixqH6Xije8TPi6vkWHGO1LJeZB117ETxaK4HAjyqkjf1ZAqzZBoj0H1k0UJCisKDvFyHwmWV8fFipNqVm7F4XYy17JfikGSVjiJjDLRvft4lZAAtNiJO0PTsP3rWrJiUyZCYfqnLZCWLMFhuCfqogk0ZBflPrMZD";
 const accountId = "act_473357418251469";
 
 bizSdk.FacebookAdsApi.init(accessToken);
@@ -21,7 +21,8 @@ const account = new AdAccount(accountId);
 
 const params = {
   breakdowns: "age, gender",
-  date_preset: "last_week_mon_sun",
+  // date_preset: "last_week_mon_sun",
+  time_range: { since: "2023-08-01", until: "2023-08-31" },
   time_increment: 1,
   action_attribution_windows: ["1d_click", "7d_click", "1d_view"],
   sort: ["date_start_ascending"],
@@ -46,10 +47,15 @@ const fields = [
 
   async_job = await async_job.get();
 
+  console.log(async_job);
+
   while (async_job[AdReportRun.Fields.async_status] !== "Job Completed") {
-    await sleep(100);
+    await sleep(1000);
     async_job = await async_job.get();
+    console.log(async_job);
   }
+
+  console.log("Completed...");
 
   let insights = await async_job.getInsights([], {});
 
@@ -71,18 +77,17 @@ const fields = [
         insight._data.date_start,
         insight._data.age ?? "unknown",
         insight._data.gender ?? "unknown",
-        insight._data.spend ?? "-",
+        insight._data.spend ?? "",
         "Просмотры целевой страницы",
-        (action && action[0]?.value) ?? "-",
-        (costAction && costAction[0]?.value) ?? "-",
-        insight._data.inline_link_clicks ?? "-",
-        insight._data.cost_per_inline_link_click ?? "-",
-        (insight._data.website_ctr && insight._data.website_ctr[0].value) ??
-          "-",
-        insight._data.impressions ?? "-",
-        insight._data.frequency ?? "-",
-        (action && action[0]?.value) ?? "-",
-        (costAction && costAction[0]?.value) ?? "-",
+        (action && action[0]?.value) ?? "",
+        (costAction && costAction[0]?.value) ?? "",
+        insight._data.inline_link_clicks ?? "",
+        insight._data.cost_per_inline_link_click ?? "",
+        (insight._data.website_ctr && insight._data.website_ctr[0].value) ?? "",
+        insight._data.impressions ?? "",
+        insight._data.frequency ?? "",
+        (action && action[0]?.value) ?? "",
+        (costAction && costAction[0]?.value) ?? "",
         insight._data.date_start,
         insight._data.date_start,
       ]);
