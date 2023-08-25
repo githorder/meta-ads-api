@@ -22,8 +22,7 @@ const account = new AdAccount(accountId);
 
 const params = {
   breakdowns: "age, gender",
-  // date_preset: "last_week_mon_sun",
-  time_range: { since: "2023-05-01", until: "2023-05-31" },
+  date_preset: "last_week_mon_sun",
   time_increment: 1,
   action_attribution_windows: ["1d_click", "7d_click", "1d_view"],
   sort: ["date_start_ascending"],
