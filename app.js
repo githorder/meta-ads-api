@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { setTimeout: sleep } = require("node:timers/promises");
 
 const bizSdk = require("facebook-nodejs-business-sdk");
@@ -11,9 +13,8 @@ const Insights = bizSdk.InsightsResult;
 const AdSet = bizSdk.AdSet;
 const AdReportRun = bizSdk.AdReportRun;
 
-const accessToken =
-  "EAAHXvke4wn4BO0ptJ8ZCQRpzZBmUwtcEZCYdTRZBQ95P6ZASwmXuAFhNons35jc72zgahixqH6Xije8TPi6vkWHGO1LJeZB117ETxaK4HAjyqkjf1ZAqzZBoj0H1k0UJCisKDvFyHwmWV8fFipNqVm7F4XYy17JfikGSVjiJjDLRvft4lZAAtNiJO0PTsP3rWrJiUyZCYfqnLZCWLMFhuCfqogk0ZBflPrMZD";
-const accountId = "act_473357418251469";
+const accessToken = process.env.ACCESS_TOKEN;
+const accountId = process.env.ACC_ID;
 
 bizSdk.FacebookAdsApi.init(accessToken);
 
@@ -21,7 +22,8 @@ const account = new AdAccount(accountId);
 
 const params = {
   breakdowns: "age, gender",
-  date_preset: "last_week_mon_sun",
+  // date_preset: "last_week_mon_sun",
+  time_range: { since: "2023-05-01", until: "2023-05-31" },
   time_increment: 1,
   action_attribution_windows: ["1d_click", "7d_click", "1d_view"],
   sort: ["date_start_ascending"],
