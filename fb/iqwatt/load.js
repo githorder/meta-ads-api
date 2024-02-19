@@ -13,8 +13,8 @@ const {
 const AdAccount = bizSdk.AdAccount;
 const AdReportRun = bizSdk.AdReportRun;
 
-const accessToken = process.env.ACCESS_TOKEN;
-const accountId = process.env.AGENCY_ACC_ID;
+const accessToken = process.env.IQWATT_ACCESS_TOKEN;
+const accountId = process.env.IQWATT_ACC_ID;
 
 bizSdk.FacebookAdsApi.init(accessToken);
 
@@ -23,7 +23,7 @@ const account = new AdAccount(accountId);
 const params = {
   breakdowns: "age, gender",
   // date_preset: "this_year",
-  time_range: { since: "2024-01-01", until: "2024-02-18" },
+  time_range: { since: "2024-02-12", until: "2024-02-18" },
   time_increment: 1,
   action_attribution_windows: ["7d_click", "1d_click", "1d_view"],
   sort: ["date_start_ascending"],
@@ -43,11 +43,11 @@ const fields = [
   "cost_per_action_type",
 ];
 
-const SHEET_ID = "1xuCVuuld5-AHI0MLnByJudmbpuNMEpldKFzVA6sUm3E";
-const SHEET_NAME = "test meta ads (ag)";
+// const SHEET_ID = "1xuCVuuld5-AHI0MLnByJudmbpuNMEpldKFzVA6sUm3E";
+// const SHEET_NAME = "test meta ads (iqwatt)";
 
-// const SHEET_ID = "1se6b4APnr35M82_jJuutVhfR5lS0GqdEpaMAGj-CZoI";
-// const SHEET_NAME = "Meta ADS";
+const SHEET_ID = "17vKOaG-4jtXmLO-lAeVT3Pv7RixhZ-p9_V-2Sk3LQj4";
+const SHEET_NAME = "Meta Ads Report";
 
 async function loadMetaData() {
   try {
@@ -77,13 +77,11 @@ async function loadMetaData() {
       for (let insight of insights) {
         const actionConv = insight._data?.actions?.filter(
           ({ action_type }) =>
-            action_type === "offsite_conversion.fb_pixel_custom"
+            action_type ===
+            "onsite_conversion.messaging_conversation_started_7d"
         );
-        const actionClicks = insight._data?.actions?.filter(
-          ({ action_type }) => action_type === "link_click"
-        );
-        const actionViews = insight._data?.actions?.filter(
-          ({ action_type }) => action_type === "landing_page_view"
+        const actionLeads = insight._data?.actions?.filter(
+          ({ action_type }) => action_type === "lead"
         );
 
         // console.log(insight._data?.actions);
@@ -95,14 +93,13 @@ async function loadMetaData() {
           insight._data.age ?? "unknown",
           insight._data.gender ?? "unknown",
           Number(insight._data.spend) ?? "",
+          (actionLeads && Number(actionLeads[0]?.value)) ?? "",
           (actionConv && Number(actionConv[0]?.value)) ?? "",
-          (actionClicks && Number(actionClicks[0]?.value)) ?? "",
           (insight._data.website_ctr &&
             Number(insight._data.website_ctr[0].value)) ??
             "",
           Number(insight._data.impressions) ?? "",
           Number(insight._data.frequency) ?? "",
-          (actionViews && Number(actionViews[0]?.value)) ?? "",
         ]);
 
         // console.log(i);

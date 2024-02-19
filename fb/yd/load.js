@@ -4,7 +4,11 @@ const { setTimeout: sleep } = require("node:timers/promises");
 
 const bizSdk = require("facebook-nodejs-business-sdk");
 
-const { createRecord, appendRecord, getRecords } = require("./gSheets");
+const {
+  createRecord,
+  appendRecord,
+  getRecords,
+} = require("../../utils/gSheets");
 
 const AdAccount = bizSdk.AdAccount;
 const AdReportRun = bizSdk.AdReportRun;
@@ -19,7 +23,7 @@ const account = new AdAccount(accountId);
 const params = {
   breakdowns: "age, gender",
   // date_preset: "this_year",
-  time_range: { since: "2023-04-01", until: "2024-01-17" },
+  time_range: { since: "2024-01-18", until: "2024-02-18" },
   time_increment: 1,
   action_attribution_windows: ["7d_click", "1d_click", "1d_view"],
   sort: ["date_start_ascending"],
@@ -41,6 +45,9 @@ const fields = [
 
 const SHEET_ID = "1xuCVuuld5-AHI0MLnByJudmbpuNMEpldKFzVA6sUm3E";
 const SHEET_NAME = "test meta ads (yd)";
+
+// const SHEET_ID = "1TYEDC2idgTfak9w6HBRIcM-P4qCVEfqLoA9--ICpqNQ";
+// const SHEET_NAME = "Meta Ads";
 
 async function loadMetaData() {
   try {
@@ -82,7 +89,7 @@ async function loadMetaData() {
             action_type === "offsite_conversion.fb_pixel_purchase"
         );
 
-        console.log(insight._data?.actions);
+        // console.log(insight._data?.actions);
 
         values.push([
           insight._data.campaign_name,

@@ -2,23 +2,39 @@ require("dotenv").config();
 
 const { loadMetaData } = require("..");
 const { createRecord } = require("../../utils/gSheets");
+const FBToken = require("../../models/fb-token.model");
 
 const fields = require("./fields");
 const params = require("./params");
 
-const accessToken = process.env.ACCESS_TOKEN;
-const accountId = process.env.YD_ACC_ID;
-
-const SHEET_ID = "1xuCVuuld5-AHI0MLnByJudmbpuNMEpldKFzVA6sUm3E";
-const SHEET_NAME = "test meta ads (yd)";
+const SHEET_ID = "1TYEDC2idgTfak9w6HBRIcM-P4qCVEfqLoA9--ICpqNQ";
+const SHEET_NAME = "Meta Ads";
 
 async function YDAdsTask() {
+  const accountId = process.env.YD_ACC_ID;
+
   try {
+    const accessToken = await FBToken.findOne({ where: { name: "pg" } });
+
     let insights = await loadMetaData({
       accountId,
       accessToken,
       fields,
-      params,
+      params: {
+        ...params,
+        time_range: {
+          since: `${new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate() - 1
+          ).toLocaleDateString()} 00:00:00`,
+          until: `${new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate() - 1
+          ).toLocaleDateString()} 23:59:59`,
+        },
+      },
     });
 
     const values = [];
@@ -42,8 +58,6 @@ async function YDAdsTask() {
             action_type === "offsite_conversion.fb_pixel_purchase"
         );
 
-        // console.log(insight._data?.actions);
-
         values.push([
           insight._data.campaign_name,
           insight._data.adset_name,
@@ -63,7 +77,7 @@ async function YDAdsTask() {
         ]);
 
         // console.log(i);
-        i++;
+        // i++;
       }
 
       notEmpty = insights.hasNext();

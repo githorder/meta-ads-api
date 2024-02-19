@@ -7,14 +7,11 @@ const FBToken = require("../../models/fb-token.model");
 const fields = require("./fields");
 const params = require("./params");
 
-// const SHEET_ID = "1xuCVuuld5-AHI0MLnByJudmbpuNMEpldKFzVA6sUm3E";
-// const SHEET_NAME = "test meta ads (ag)";
+const SHEET_ID = "17vKOaG-4jtXmLO-lAeVT3Pv7RixhZ-p9_V-2Sk3LQj4";
+const SHEET_NAME = "Meta Ads Report";
 
-const SHEET_ID = "1se6b4APnr35M82_jJuutVhfR5lS0GqdEpaMAGj-CZoI";
-const SHEET_NAME = "Meta ADS";
-
-async function AGAdsTask() {
-  const accountId = process.env.AGENCY_ACC_ID;
+async function IQWattAdsTask() {
+  const accountId = process.env.IQWATT_ACC_ID;
 
   try {
     const accessToken = await FBToken.findOne({ where: { name: "pg" } });
@@ -49,13 +46,11 @@ async function AGAdsTask() {
       for (let insight of insights) {
         const actionConv = insight._data?.actions?.filter(
           ({ action_type }) =>
-            action_type === "offsite_conversion.fb_pixel_custom"
+            action_type ===
+            "onsite_conversion.messaging_conversation_started_7d"
         );
-        const actionClicks = insight._data?.actions?.filter(
-          ({ action_type }) => action_type === "link_click"
-        );
-        const actionViews = insight._data?.actions?.filter(
-          ({ action_type }) => action_type === "landing_page_view"
+        const actionLeads = insight._data?.actions?.filter(
+          ({ action_type }) => action_type === "lead"
         );
 
         values.push([
@@ -65,18 +60,17 @@ async function AGAdsTask() {
           insight._data.age ?? "unknown",
           insight._data.gender ?? "unknown",
           Number(insight._data.spend) ?? "",
+          (actionLeads && Number(actionLeads[0]?.value)) ?? "",
           (actionConv && Number(actionConv[0]?.value)) ?? "",
-          (actionClicks && Number(actionClicks[0]?.value)) ?? "",
           (insight._data.website_ctr &&
             Number(insight._data.website_ctr[0].value)) ??
             "",
           Number(insight._data.impressions) ?? "",
           Number(insight._data.frequency) ?? "",
-          (actionViews && Number(actionViews[0]?.value)) ?? "",
         ]);
 
         // console.log(i);
-        i++;
+        // i++;
       }
 
       notEmpty = insights.hasNext();
@@ -94,4 +88,4 @@ async function AGAdsTask() {
   }
 }
 
-module.exports = AGAdsTask;
+module.exports = IQWattAdsTask;
